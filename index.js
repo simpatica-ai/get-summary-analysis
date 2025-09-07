@@ -26,10 +26,9 @@ functions.http('getSummaryAnalysis', async (req, res) => {
 
     const { analyses, prioritizedVirtues } = req.body;
     
-    // Use the same robust model fallback strategy
+    // --- FIX: Using the single most reliable model to avoid availability issues ---
     const modelNames = [
-      'gemini-1.5-flash-latest',
-      'gemini-pro'
+      'gemini-pro' 
     ];
 
     let summaryText = '';
