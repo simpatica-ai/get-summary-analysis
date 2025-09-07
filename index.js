@@ -11,7 +11,7 @@ functions.http('getSummaryAnalysis', async (req, res) => {
   // Set CORS headers
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.set('Access-control-allow-headers', 'Content-Type');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
   
   if (req.method === 'OPTIONS') {
     res.status(204).send('');
@@ -20,24 +20,27 @@ functions.http('getSummaryAnalysis', async (req, res) => {
 
   try {
     // Validate request body
-    if (!req.body || !Array.isArray(req.body.analyses) || !Array.isArray(req.body.prioritizedVirtues)) {
+    if (!req.body || typeof req.body !== 'object' || !Array.isArray(req.body.analyses) || !Array.isArray(req.body.prioritizedVirtues)) {
       return res.status(400).send({ error: 'Invalid request body: Expected analyses and prioritizedVirtues arrays.' });
     }
 
     const { analyses, prioritizedVirtues } = req.body;
     
-    // --- FIX: Using the single most reliable model to avoid availability issues ---
+    // Using the exact same successful model fallback strategy
     const modelNames = [
-      'gemini-pro' 
+      'gemini-2.5-flash-lite',
+      'gemini-2.0-flash-lite',
+      'gemini-1.5-flash-lite',
+      'gemini-1.5-flash',
+      'gemini-pro'
     ];
 
     let summaryText = '';
     let lastError = null;
     let successfulModel = '';
-
-    // Format the incoming data for the prompt
-    const combinedAnalyses = analyses.map(a => `- ${a.virtue}: ${a.analysis}`).join('\n');
+    
     const priorityList = prioritizedVirtues.map((v, i) => `${i + 1}. ${v.virtue} (Score: ${(10 - v.defectIntensity).toFixed(1)})`).join('\n');
+    const combinedAnalyses = analyses.map(a => `- ${a.virtue}: ${a.analysis}`).join('\n\n');
 
     // Try each model until one works
     for (const modelName of modelNames) {
@@ -48,7 +51,7 @@ functions.http('getSummaryAnalysis', async (req, res) => {
           model: modelName,
           generationConfig: {
             maxOutputTokens: 1024,
-            temperature: 0.6,
+            temperature: 0.7,
             topP: 0.8,
             topK: 40
           },
@@ -60,9 +63,9 @@ functions.http('getSummaryAnalysis', async (req, res) => {
           ]
         });
 
-        // New prompt for the summary analysis
+        // New prompt specifically for generating the summary
         const prompt = `
-          As an expert virtuous coach who empathizes with those in recovery, synthesize the following 12 individual virtue analyses into a single, holistic summary for a practitioner to guide virtue growth. The response should be approximately 200 - 250  words. Use t"you" familiar language to address the user directly.
+          As an expert virtuous coach who empathizes with those in recovery, synthesize the following 12 individual virtue analyses into a single, holistic summary for a practitioner to guide virtue growth. The response should be approximately 200 - 250 words. Use "you" familiar language to address the user directly.
 
           **INPUT DATA:**
 
@@ -76,7 +79,8 @@ functions.http('getSummaryAnalysis', async (req, res) => {
           1.  **Identify Overarching Themes:** Analyze all 12 reports to find common patterns or root causes. For example, do issues with Honesty, Integrity, and Responsibility all point to a core challenge with accountability? Or do struggles with Patience and Self-Control indicate a broader issue with emotional regulation?
           2.  **State the Primary Growth Area:** Begin with a direct statement identifying the user's most significant area for development, referencing the top 2-3 virtues from the priority list.
           3.  **Provide a Synthesis:** Briefly explain how the identified themes connect across multiple virtues.
-          4.  **Conclude with a Strategic Recommendation:** Offer a high-level recommendation or a key question for the practitioner to focus on with the user that addresses the core theme.`;
+          4.  **Conclude with a Strategic Recommendation:** Offer a high-level recommendation or a key question for the practitioner to focus on with the user that addresses the core theme.
+          5.  Keep the entire response under 250 words.`;
 
         const result = await generativeModel.generateContent(prompt);
         const response = result.response;
