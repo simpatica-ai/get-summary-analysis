@@ -80,7 +80,7 @@ functions.http('getSummaryAnalysis', async (req, res) => {
           2.  **State the Primary Growth Area:** Begin with a direct statement identifying the user's most significant area for development, referencing the top 2-3 virtues from the priority list.
           3.  **Provide a Synthesis:** Briefly explain how the identified themes connect across multiple virtues.
           4.  **Conclude with a Strategic Recommendation:** Offer a high-level recommendation or a key question for the practitioner to focus on with the user that addresses the core theme.
-          5.  Keep the entire response under 250 words.`;
+          5.  Keep the entire response under 300 words.`;
 
         const result = await generativeModel.generateContent(prompt);
         const response = result.response;
