@@ -77,10 +77,11 @@ functions.http('getSummaryAnalysis', async (req, res) => {
 
           **TASKS:**
           1.  **Identify Overarching Themes:** Analyze all 12 reports to find common patterns or root causes. For example, do issues with Honesty, Integrity, and Responsibility all point to a core challenge with accountability? Or do struggles with Patience and Self-Control indicate a broader issue with emotional regulation?
-          2.  **State the Primary Growth Area:** Begin with a direct statement identifying the user's most significant area for development, referencing the top 2-3 virtues from the priority list.
-          3.  **Provide a Synthesis:** Briefly explain how the identified themes connect across multiple virtues.
-          4.  **Conclude with a Strategic Recommendation:** Offer a high-level recommendation or a key question for the practitioner to focus on with the user that addresses the core theme.
-          5.  Keep the entire response under 300 words.`;
+          2.  **State the Primary Growth Area:** Begin with a direct statement identifying the user's most significant area for development, referencing the top 2-3 virtues from the priority list that scored the lowest. The lower the score the greater the development need.
+          3.  **Commend Strengths:** Briefly acknowledge any virtues where the user shows relative strength or balance. Virtues with scores above 7.0 can be mentioned here.
+          4.  **Provide a Synthesis:** Briefly explain how the identified themes connect across multiple virtues.
+          5.  **Conclude with a Strategic Recommendation:** Offer a high-level recommendation or a key question for the practitioner to focus on with the user that addresses the core theme.
+          6.  Keep the entire response under 300 words.`;
 
         const result = await generativeModel.generateContent(prompt);
         const response = result.response;
