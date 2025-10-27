@@ -67,6 +67,8 @@ functions.http('getSummaryAnalysis', async (req, res) => {
         const prompt = `
           As an expert virtuous coach who empathizes with those in recovery, synthesize the following 12 individual virtue analyses into a single, holistic summary for a practitioner to guide virtue growth. The response should be approximately 200 words. Use "you" familiar language to address the user directly.
 
+          ** SPELLING AND GRAMMAR are very important in returned response.
+
           **INPUT DATA:**
 
           **1. User's Prioritized Virtue List (from highest to lowest priority for development):**
